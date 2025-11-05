@@ -4,5 +4,7 @@
             
      
 
-<p><a href="/posts"> Go to Posts</a>
+<p><a href="/posts"> See Posts</a>
+
+<p><a href="/posts/create"> Write a form</a>
 </p>

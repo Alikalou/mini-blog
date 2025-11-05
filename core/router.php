@@ -1,30 +1,54 @@
-<?php 
+<?php
 
 class Router
 {
-    protected array $routes = ['GET'=>[]
+    protected array $routes = [
+        'GET'  => [],
+        'POST' => [],
     ];
-    
+
     public function get(string $path, callable $handler): void
     {
-        $this->routes['GET'][$path] = $handler;
+        $this->routes['GET'][] = [
+            'pattern' => $path,
+            'handler' => $handler,
+        ];
+    }
+
+    public function post(string $path, callable $handler): void
+    {
+        $this->routes['POST'][] = [
+            'pattern' => $path,
+            'handler' => $handler,
+        ];
     }
 
     public function dispatch(string $method, string $uri): void
     {
-        // If the route does not exist, return 404
-        if (!isset($this->routes[$method][$uri])) {
+        $path = parse_url($uri, PHP_URL_PATH); // strip ?query
+
+        if (!isset($this->routes[$method])) {
             http_response_code(404);
             echo "404 Not Found";
             return;
         }
 
-        $handler = $this->routes[$method][$uri];
+        foreach ($this->routes[$method] as $route) {
+            $pattern = $route['pattern']; // e.g. '/posts/show/{id}'
+            $handler = $route['handler'];
 
-        if (!is_callable($handler)) {
-            throw new \Exception("Route handler for {$uri} is not callable");
+            // Convert '/posts/show/{id}' → '#^/posts/show/([^/]+)$#'
+            $regex = '#^' . preg_replace('#\{[^/]+\}#', '([^/]+)', $pattern) . '$#';
+
+            if (preg_match($regex, $path, $matches)) {
+                array_shift($matches); // remove full match
+                // $matches now contains ['1'] or ['2', 'comments', ...] etc.
+                call_user_func_array($handler, $matches);
+                return;
+            }
         }
 
-        call_user_func($handler);
+        http_response_code(404);
+        echo "404 Not Found";
     }
 }

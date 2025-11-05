@@ -1,20 +1,34 @@
 <?php
 
+
 class Controller{
 
 
-    protected function viewPosts($view, $data=[]){
-
+    protected function render($view, $path, $data=[])
+    {
         extract($data);
-        require __DIR__.'/../app/views/posts/'.$view.'.php';
+
+        ob_start();
+
+        require $path;
+
+        $content=ob_get_clean();
+
+        require __DIR__.'/../app/views/layout.php';
+    }
+
+    protected function viewPosts($view, $data=[]){
+        $path=__DIR__.'/../app/views/posts/'.$view.'.php';
+
+        $this->render($view, $path, $data);
         //Require here literally imports the code and place it in the place it was written.    
     }
     
     protected function viewHome($view, $data=[]){
 
-        extract($data);
-        require __DIR__.'/../app/views/'.$view.'.php';
+        $path= __DIR__.'/../app/views/'.$view.'.php';
 
+        $this->render($view, $path, $data);
     }
 
 }
