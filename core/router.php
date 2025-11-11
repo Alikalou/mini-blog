@@ -2,10 +2,7 @@
 
 class Router
 {
-    protected array $routes = [
-        'GET'  => [],
-        'POST' => [],
-    ];
+    private array $routes = [];
 
     public function get(string $path, callable $handler): void
     {
@@ -23,32 +20,25 @@ class Router
         ];
     }
 
-    public function dispatch(string $method, string $uri): void
+    public function dispatch(string $method, string $path): void
     {
-        $path = parse_url($uri, PHP_URL_PATH); // strip ?query
+        $routes = $this->routes[$method] ?? [];
 
-        if (!isset($this->routes[$method])) {
-            http_response_code(404);
-            echo "404 Not Found";
-            return;
-        }
-
-        foreach ($this->routes[$method] as $route) {
-            $pattern = $route['pattern']; // e.g. '/posts/show/{id}'
+        foreach ($routes as $route) {
+            $pattern = $route['pattern'];
             $handler = $route['handler'];
 
-            // Convert '/posts/show/{id}' → '#^/posts/show/([^/]+)$#'
+            // Convert '/posts/delete/{id}' → '#^/posts/delete/([^/]+)$#'
             $regex = '#^' . preg_replace('#\{[^/]+\}#', '([^/]+)', $pattern) . '$#';
 
             if (preg_match($regex, $path, $matches)) {
                 array_shift($matches); // remove full match
-                // $matches now contains ['1'] or ['2', 'comments', ...] etc.
                 call_user_func_array($handler, $matches);
                 return;
             }
         }
 
         http_response_code(404);
-        echo "404 Not Found";
+        echo '404 Not Found';
     }
 }

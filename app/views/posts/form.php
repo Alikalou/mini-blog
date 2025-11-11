@@ -13,5 +13,6 @@
 <footer>
     <p><a href="/posts"> Back to Posts</a></p>
     <p><a href="/"> Go to Home</a></p>
+    
 </footer>
 

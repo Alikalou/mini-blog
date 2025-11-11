@@ -13,6 +13,7 @@ class Post{
     private FileStorage $storage;
     private array $posts=[];
 
+    //Instantiate the storage and retrieve posts from it and assign it to the array property $posts
     public function __construct(){
         $this->storage=new FileStorage(__DIR__.'/../../data/posts.json');
         $this->posts=$this->storage->retrieve();
@@ -35,6 +36,24 @@ class Post{
         return null;
     }
 
+    public function update(int $id, string $title, string $body): bool
+{
+    foreach ($this->posts as $index => $post) {
+        if ((int)($post['id'] ?? 0) === $id) {
+
+            $this->posts[$index]['title'] = $title;
+            $this->posts[$index]['body']  = $body;
+
+            $this->saveToStorage();
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
     public function saveToArray(string $title, string $body):void{
 
         $newId=count($this->posts)+1;
@@ -52,4 +71,23 @@ class Post{
         $this->storage->save($this->posts);
     }
 
+    public function delete(int $id):bool{
+
+        foreach($this->posts as $index=>$post){
+            if((int)($post['id']??0)===$id){
+                unset($this->posts[$index]);
+
+                   $this->posts = array_values($this->posts);
+
+            // Save changes
+            $this->saveToStorage();
+
+            return true;
+            }
+        }
+        return false;
+
+    }
+
+    
 }

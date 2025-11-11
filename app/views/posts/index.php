@@ -1,6 +1,10 @@
 
 <h1> Blog Posts </h1>
 
+<?php if (!empty($_SESSION['flash'])): ?>
+    <p class="flash"><?= htmlspecialchars($_SESSION['flash']) ?></p>
+    <?php unset($_SESSION['flash']); ?>
+<?php endif; ?>
 <ul> 
     <?php foreach($posts as $post): ?>
         <li> 

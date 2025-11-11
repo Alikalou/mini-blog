@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__.'/../../core/controller.php';
 
 require_once __DIR__.'/../models/Post.php';
@@ -53,38 +54,74 @@ public function show($id): void
 
     }
 
-    public function store(){
-        $title=$_POST['title'] ?? '';
-        $body=$_POST['body'] ?? '';
+    public function store($id = null)
+    {
+        $title = $_POST['title'] ?? '';
+        $body  = $_POST['body'] ?? '';
 
-        $title=trim($title);
-        $body=trim($body);
+        $title = trim($title);
+        $body  = trim($body);
 
         if ($title === '' || $body === '') {
-        http_response_code(422);
-        echo "Title and body are required.";
-        return;
-        // Later you can re-render the form with old input + error messages instead of echoing.
-    }
-        //Here you would normally store the post in a database
-        //But for now, we will just display a confirmation message.
+            http_response_code(422);
+            echo "Title and body are required.";
+            return;
+            // Later you can re-render the form with old input + error messages instead of echoing.
+        }
 
-        
+        // If $id is not null → we're updating an existing post
+        if ($id !== null) {
+            $updated = $this->post->update((int)$id, $title, $body);
+
+            if (!$updated) {
+                http_response_code(404);
+                echo "There is no post with such ID to update";
+                return;
+            }
+            $_SESSION['flash'] = 'Post was updated successfully.';
+            header('Location: /posts');
+            exit;
+        }
+
+        // Otherwise → this is a new post
         $this->post->saveToArray($title, $body);
-
         $this->post->saveToStorage();
 
-        $this->viewPosts('index', [
-            'title' => 'All Posts',
-            'posts' => $this->post->all(),
-        ]);
-
+        // PRG: DO NOT render index here, just redirect
+        
+        $_SESSION['flash'] = 'Post was created successfully.';
         header('Location: /posts');
         exit;
     }
 
-    //So, we need two functions in the post
-    //controller, since post controller will be responsible for the control
-    //of two interfaces, the index and the show pages.
+
+    public function destroy($id): void
+    {
+    $deleted = $this->post->delete((int) $id);
+
+    if ($deleted) {
+        $_SESSION['flash'] = 'Post deleted successfully.';
+        header('Location: /posts');
+        exit;
+    }
+
+    http_response_code(404);
+    echo "There is no post with such ID to delete";
+    }
+
+    public function editForm($id): void
+{
+    $post = $this->post->findPost((int) $id);
+
+    if (!$post) {
+        http_response_code(404);
+        echo "Post not found";
+        return;
+    }
+
+    $this->viewPosts('edit', [
+        'post' => $post,
+    ]);
+}
 
 }

@@ -1,13 +1,13 @@
 <?php
 //Load core files
+
+session_start();
 require_once __DIR__.'/../core/controller.php';
 require_once __DIR__.'/../core/router.php';
 
 //Load controller
 require_once __DIR__.'/../app/controllers/PostController.php';
 require_once __DIR__.'/../app/controllers/HomeController.php';
-
-
 
 
 $router=new Router();
@@ -24,10 +24,15 @@ $router->post('/posts', [$postController, 'store']);
 //dynamic route with {id} parameter
 $router->get('/posts/show/{id}', [$postController, 'show']);
 
+$router->get('/posts/edit/{id}', [$postController, 'editForm']);
+$router->post('/posts/save/{id}', [$postController, 'store']);
+$router->post('/posts/delete/{id}', [$postController, 'destroy']);
 
 
 $method=$_SERVER['REQUEST_METHOD']?? 'GET';
 $uri=parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+
 
 $router->dispatch($method, $uri);
 
