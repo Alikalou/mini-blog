@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/flash.php';
+
 class Router
 {
     private array $routes = [];
@@ -38,7 +40,9 @@ class Router
             }
         }
 
-        http_response_code(404);
-        echo '404 Not Found';
+        // If no route matched
+        Flash::setFlash('error', '404 Not Found');
+        header('Location: /');
+        exit;
     }
 }

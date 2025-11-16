@@ -8,11 +8,13 @@ require_once __DIR__.'/../core/router.php';
 //Load controller
 require_once __DIR__.'/../app/controllers/PostController.php';
 require_once __DIR__.'/../app/controllers/HomeController.php';
+require_once __DIR__.'/../app/controllers/CommentsController.php';
 
 
 $router=new Router();
 $postController=new PostController();
 $homeController= new HomeController();
+$commentsController=new CommentsController();
 
 $router->get('/', [$homeController, 'index']);
 
@@ -23,18 +25,19 @@ $router->post('/posts', [$postController, 'store']);
 
 //dynamic route with {id} parameter
 $router->get('/posts/show/{id}', [$postController, 'show']);
-
 $router->get('/posts/edit/{id}', [$postController, 'editForm']);
 $router->post('/posts/save/{id}', [$postController, 'store']);
 $router->post('/posts/delete/{id}', [$postController, 'destroy']);
+
+//dynamic route with {id} parameter for comments
+$router->post('/posts/{postId}/comments', [$commentsController, 'store']);
+$router->post('/posts/{postId}/comments/delete/{commentId}', [$commentsController, 'destroy']);
+
+
 
 
 $method=$_SERVER['REQUEST_METHOD']?? 'GET';
 $uri=parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-
-
 $router->dispatch($method, $uri);
-
-
 

@@ -3,15 +3,20 @@
 require_once __DIR__.'/../../core/controller.php';
 
 require_once __DIR__.'/../models/Post.php';
+require_once __DIR__.'/../models/Comment.php';
+
+require_once __DIR__.'/../../core/flash.php';
 
 class PostController extends Controller {
 
     private Post $post;
+    private Comment $comment;
 
     public function __construct(?Post $post = null)
     {
         // If no Post is injected, create a default one
         $this->post = $post ?? new Post();
+        $this->comment = new Comment();
     }
 
 
@@ -25,20 +30,26 @@ class PostController extends Controller {
             'posts' => $posts,
         ]);
     }
+
+
     
 public function show($id): void
 {
     $post = $this->post->findPost($id);
 
     if (!$post) {
-        http_response_code(404);
-        echo "There is no post with such ID";
-        return;
+        Flash::setFlash('error', 'There is no post with such ID.');
+        header('Location: /posts');
+        exit;
     }
+
+    $comments=$this->comment->forPost((int) $id);
+
 
     $this->viewPosts('show', [
         'title' => $post['title'] ?? 'Post',
         'post'  => $post,
+        'comments' => $comments,
     ]);
 }
 
@@ -74,13 +85,15 @@ public function show($id): void
             $updated = $this->post->update((int)$id, $title, $body);
 
             if (!$updated) {
-                http_response_code(404);
-                echo "There is no post with such ID to update";
-                return;
+                Flash::setFlash('error', 'There is no post with such ID to update.');
+                header('Location: /posts');
+                exit;    
             }
-            $_SESSION['flash'] = 'Post was updated successfully.';
+            else{
+            Flash::setFlash('success', 'Post updated successfully.');
             header('Location: /posts');
             exit;
+            }
         }
 
         // Otherwise → this is a new post
@@ -89,7 +102,7 @@ public function show($id): void
 
         // PRG: DO NOT render index here, just redirect
         
-        $_SESSION['flash'] = 'Post was created successfully.';
+        Flash::setFlash('success', 'Post created successfully.');
         header('Location: /posts');
         exit;
     }
@@ -100,23 +113,28 @@ public function show($id): void
     $deleted = $this->post->delete((int) $id);
 
     if ($deleted) {
-        $_SESSION['flash'] = 'Post deleted successfully.';
+        Flash::setFlash('success', 'Post deleted successfully.');
+
+        header('Location: /posts');
+        exit;
+    }
+    else{
+        Flash::setFlash('error', 'There is no post with such ID to delete.');
         header('Location: /posts');
         exit;
     }
 
-    http_response_code(404);
-    echo "There is no post with such ID to delete";
-    }
+}
+
 
     public function editForm($id): void
 {
     $post = $this->post->findPost((int) $id);
 
     if (!$post) {
-        http_response_code(404);
-        echo "Post not found";
-        return;
+    Flash::setFlash('error', 'There is no post with such ID to edit.');
+    header('Location: /posts');
+    exit;
     }
 
     $this->viewPosts('edit', [
@@ -125,3 +143,4 @@ public function show($id): void
 }
 
 }
+
