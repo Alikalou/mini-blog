@@ -20,12 +20,18 @@ class Comment{
         return $this->sortComments($result)?? [];
     }
 
-    public function createComment(int $postId,string $author,string $body)
+    public function createComment(int $postId, string $body, string $authorName, int $authorId )
     {
+        $existingIds= array_column($this->comments, 'id');
+        $maxId= $existingIds ? max($existingIds) : 0;
+        $maxId++;
+        
+
         $this->comments[]=[
-            'id'=>count($this->comments)+1,
+            'id'=>$maxId,
             'post_id'=>$postId,
-            'author'=>$author,
+            'author_id'=> $authorId,
+            'author'=>$authorName,
             'body'=>$body,
             'created_at'=>date('Y-m-d H:i:s'),
         ];
@@ -64,6 +70,20 @@ class Comment{
         });
 
         return $comments;
+    }
+
+    public function getAuthorId(int|string $commentId): ?int
+    {
+        $commentId= (int) $commentId;
+
+        foreach( $this->comments as $comment)
+            if( (int) ($comment['id'] ?? 0) ===$commentId)
+               
+                return $comment['author_id']?? null;
+                 //If the comment is found, make sure that it has an author id, otherwise notify 
+                //the controller by returning null
+
+        return null;
     }
 
 

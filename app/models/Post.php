@@ -2,11 +2,7 @@
 
 require_once __DIR__.'/../../core/storage.php';
 
-/*
-1. Add a Model layer (instead of hardcoded arrays)
 
-You’re still defining posts manually inside your controller:
-*/
 
 class Post{
 
@@ -37,7 +33,7 @@ class Post{
     }
 
     public function update(int $id, string $title, string $body): bool
-{
+    {
     foreach ($this->posts as $index => $post) {
         if ((int)($post['id'] ?? 0) === $id) {
 
@@ -51,17 +47,21 @@ class Post{
     }
 
     return false;
-}
+    }
 
 
-    public function saveToArray(string $title, string $body):void{
+    public function saveToArray(string $title, string $body, int $author_id, string $author):void{
 
-        $newId=count($this->posts)+1;
+        $existingIds= array_column($this->posts, 'id');
+        $maxId= $existingIds ? max($existingIds) : 0;
+        $newId= $maxId +1;
         
         $this->posts[]=[
             'id'=>$newId,
             'title'=>$title,
             'body'=>$body,
+            'author_id'=>$author_id,
+            'author' => $author,
         ];
 
 
@@ -87,6 +87,17 @@ class Post{
         }
         return false;
 
+    }
+
+    
+    public function getAuthorId(int|string $postId): ?int{
+        $postId= (int) $postId;
+
+        foreach($this->posts as $post)    
+            if( (int) ($post['id']?? 0) === $postId)
+                return $post['author_id']?? null;
+        
+        return null;
     }
 
     

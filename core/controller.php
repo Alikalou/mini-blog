@@ -1,14 +1,27 @@
 <?php
 
+require_once __DIR__.'/../app/models/User.php';
+require_once __DIR__.'/auth.php';
 
 class Controller{
 
+    private User $user;
+    
+    public function __construct(){
+        $this->user= new User();
+    }
 
     //The render method here of the controller handles the skeleton of the html pages.
     //The layout is our standrad of how our pages should look like.
 
     protected function render($path, $data=[])
     {
+        if (Auth::check()){
+            $userId=Auth:: userId();
+            $data['user']=$this->user->findById($userId);
+        }
+        else
+            $data['user']=null;
         //The data here is sent from the model to the controller.
         //Now the post data is accessible in the view files as vairable.
         extract($data);
@@ -38,6 +51,14 @@ class Controller{
         $path= __DIR__.'/../app/views/'.$view.'.php';
 
         $this->render($path, $data);
+    }
+
+    protected function viewAuth($view, $data=[])
+    {
+        //$path= __DIR__.'/../app/views/auth/'. $view . '.php';
+        require __DIR__.'/../app/views/auth/'. $view . '.php';
+
+        //$this->render($path, $data);
     }
 
 }

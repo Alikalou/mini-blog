@@ -1,31 +1,32 @@
 <!DOCTYPE html>
-<?php
-require_once __DIR__.'/../../core/flash.php';
-/*
-A2) Layout integration
-
-Goal: Use your existing app/views/layout.php as the single app shell.
-
-Ensure your base Controller::render(...) buffers the child view into $content, then includes app/views/layout.php.
-
-Standardize on $title (optional) and $content (required) for the layout.
-
-Done when: All pages render inside the same layout without duplicating headers/footers in child views.*/
-?>
 <html>
 <head>
   <meta charset="utf-8">
-  <title><?= htmlspecialchars($title ?? 'Mini Blog') ?></title>
+  <title><?= htmlspecialchars($title ?? 'Mini Blog', ENT_QUOTES, 'UTF-8') ?></title>
 </head>
 <body>
 
+  <nav>
+    <?php if ($user !== null): ?>
+      <span><?= htmlspecialchars('Logged in as ' . ($user['name'] ?? 'User'), ENT_QUOTES, 'UTF-8') ?></span>
+      <a href="/posts/create">Write a post</a>
+      <a href="/logout">Log out</a>
+    <?php else: ?>
+      <span>You are a guest</span>
+      <a href="/register">Create an account</a>
+      <a href="/login">Log in</a>
+    <?php endif; ?>
+  </nav>
+
   <main>
-    <?php if($flash=Flash::getFlash()):?>
-      <div class="flash <?= htmlspecialchars($flash['level'], ENT_QUOTES) ?>">
-        <?= htmlspecialchars($flash['message'], ENT_QUOTES) ?>
+    <?php if ($flash = Flash::getFlash()): ?>
+      <div class="flash <?= htmlspecialchars($flash['level'], ENT_QUOTES, 'UTF-8') ?>">
+        <?= htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8') ?>
       </div>
-  <?php endif; ?>
-  <?= $content ?>
+    <?php endif; ?>
+
+    <?= $content ?>
+  </main>
 
 </body>
 </html>

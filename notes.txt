@@ -1,0 +1,2 @@
+Change the method of logging out from GET to POST.
+

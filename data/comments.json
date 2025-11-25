@@ -1,9 +1,18 @@
 [
     {
         "id": 1,
-        "post_id": 1,
-        "author": "Daddy-_-1995",
-        "body": "Well done!",
-        "created_at": "2025-11-16 07:01:12"
+        "post_id": 2,
+        "author": "Ali",
+        "body": "Interesting topic!",
+        "created_at": "2025-11-25 09:08:37",
+        "author_id": 1
+    },
+    {
+        "id": 3,
+        "post_id": 2,
+        "author": "Ali",
+        "body": "We will discuss it, don't worry obaidah.",
+        "created_at": "2025-11-25 10:22:41",
+        "author_id": 1
     }
 ]
